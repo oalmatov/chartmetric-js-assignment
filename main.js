@@ -27,16 +27,31 @@ const response = [
 ];
 
 const transformResponse = (res) => {
+    /* 
+        Function that takes in API response and transforms it into expected output.
+
+        N = # of radio stations in response
+        M = maximum number of tracks in a station 
+
+        Runtime: O(NM + M) 
+    */
+
     const dict = {};
 
+    /* O(NM) */
     for (let i = 0; i < res.length; i++) {
         parseResponse(dict, res[i]);
     }
 
+    /* O(M) */
     return transformMap(dict);
 };
 
 const parseResponse = (dict, obj) => {
+    /* 
+        Mutates dictionary to hold (timestamp, tracks) pairs.
+    */
+
     const tracks = obj['tracks'];
 
     for (let i = 0; i < tracks.length; i++) {
@@ -55,6 +70,10 @@ const parseResponse = (dict, obj) => {
 };
 
 const transformMap = (dict) => {
+    /* 
+        Transforms dictionary into a properly formatted data object. 
+    */
+
     const data = [];
 
     const keys = Object.keys(dict);
@@ -77,6 +96,12 @@ const transformMap = (dict) => {
 };
 
 const transformTracks = (tracks) => {
+    /*
+        Helper method that transforms an array of tracks into a String.
+        Example input: [ 'Peaches', 'Savage', 'Savage', 'Savage', 'Captain Hook' ]
+        Example output: 'Peaches (1), Savage (3), Captain Hook (1)'
+    */
+
     const counter = {};
 
     for (let i = 0; i < tracks.length; i++) {
