@@ -28,28 +28,21 @@ const response = [
 
 const transformResponse = (res) => {
     const dict = {};
-    const counter = {};
 
     for (let i = 0; i < res.length; i++) {
-        parseResponse(dict, counter, res[i]);
+        parseResponse(dict, res[i]);
     }
 
-    return transformMap(dict, counter);
+    return transformMap(dict);
 };
 
-const parseResponse = (dict, counter, obj) => {
+const parseResponse = (dict, obj) => {
     const tracks = obj['tracks'];
 
     for (let i = 0; i < tracks.length; i++) {
         const track = tracks[i];
         const timestp = track['timestp'];
         const trackName = track['trackName'];
-
-        if (trackName in counter) {
-            counter[trackName] = counter[trackName] + 1;
-        } else {
-            counter[trackName] = 1;
-        }
 
         if (timestp in dict) {
             const tracksPlayed = dict[timestp];
@@ -61,7 +54,7 @@ const parseResponse = (dict, counter, obj) => {
     }
 };
 
-const transformMap = (dict, counter) => {
+const transformMap = (dict) => {
     const data = [];
 
     const keys = Object.keys(dict);
@@ -74,7 +67,7 @@ const transformMap = (dict, counter) => {
         const obj = {
             x: timestp,
             y: spins,
-            tooltip: transformTracks(counter),
+            tooltip: transformTracks(tracks),
         };
 
         data.push(obj);
@@ -83,12 +76,22 @@ const transformMap = (dict, counter) => {
     return data;
 };
 
-const transformTracks = (counter) => {
-    const tracks = Object.keys(counter);
-    let transformed = '';
+const transformTracks = (tracks) => {
+    const counter = {};
 
     for (let i = 0; i < tracks.length; i++) {
-        transformed += tracks[i] + ` (` + `${counter[tracks[i]]}` + `), `;
+        if (tracks[i] in counter) {
+            counter[tracks[i]] = counter[tracks[i]] + 1;
+        } else {
+            counter[tracks[i]] = 1;
+        }
+    }
+
+    let transformed = '';
+
+    const keys = Object.keys(counter);
+    for (let i = 0; i < keys.length; i++) {
+        transformed += keys[i] + ` (` + `${counter[keys[i]]}` + `), `;
     }
 
     return transformed.slice(0, -2);
