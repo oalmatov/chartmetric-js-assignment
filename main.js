@@ -28,21 +28,28 @@ const response = [
 
 const transformResponse = (res) => {
     const dict = {};
+    const counter = {};
 
     for (let i = 0; i < res.length; i++) {
-        parseResponse(dict, res[i]);
+        parseResponse(dict, counter, res[i]);
     }
 
-    return transformMap(dict);
+    return transformMap(dict, counter);
 };
 
-const parseResponse = (dict, obj) => {
+const parseResponse = (dict, counter, obj) => {
     const tracks = obj['tracks'];
 
     for (let i = 0; i < tracks.length; i++) {
         const track = tracks[i];
         const timestp = track['timestp'];
         const trackName = track['trackName'];
+
+        if (trackName in counter) {
+            counter[trackName] = counter[trackName] + 1;
+        } else {
+            counter[trackName] = 1;
+        }
 
         if (timestp in dict) {
             const tracksPlayed = dict[timestp];
@@ -54,7 +61,7 @@ const parseResponse = (dict, obj) => {
     }
 };
 
-const transformMap = (dict) => {
+const transformMap = (dict, counter) => {
     const data = [];
 
     const keys = Object.keys(dict);
@@ -67,7 +74,7 @@ const transformMap = (dict) => {
         const obj = {
             x: timestp,
             y: spins,
-            tooltip: transformTracks(tracks),
+            tooltip: transformTracks(counter),
         };
 
         data.push(obj);
@@ -76,17 +83,8 @@ const transformMap = (dict) => {
     return data;
 };
 
-const transformTracks = (tracks) => {
-    const counter = {};
-
-    for (let i = 0; i < tracks.length; i++) {
-        if (tracks[i] in counter) {
-            counter[tracks[i]] = counter[tracks[i]] + 1;
-        } else {
-            counter[tracks[i]] = 1;
-        }
-    }
-
+const transformTracks = (counter) => {
+    const tracks = Object.keys(counter);
     let transformed = '';
 
     for (let i = 0; i < tracks.length; i++) {
